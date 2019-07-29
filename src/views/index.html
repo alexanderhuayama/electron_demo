@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Electron Demo</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="container p-4">
+		<div class="row" id="products">
+
+		</div>
+	</div>
+	<script>
+		const products = document.getElementById('products');
+		const { ipcRenderer } = require('electron');
+
+		ipcRenderer.on('product:new', (e, prod) => {
+			const newProdTemplate = `
+				<div class="col-xs-4 p-2">
+					<div class="card text-center">
+						<div class="card-header">
+							<h5 class="card-title">${prod.name}</h5>
+						</div>
+						<div class="card-body">
+							${prod.description}
+							<hr />
+							${prod.price}
+						</div>
+						<div class="card-footer">
+							<button class="btn btn-danger btn-sm">
+								DELETE
+							</button>
+						</div>
+					</div>
+				</div>
+			`;
+
+			products.innerHTML += newProdTemplate;
+
+			const btns = document.querySelectorAll('.btn.btn-danger');
+
+			btns.forEach(btn => {
+				btn.addEventListener('click', e => {
+					e.target.parentElement.parentElement.parentElement.remove();
+				});
+			});
+
+			ipcRenderer.on('products:remove-all', e => {
+				products.innerHTML = '';
+			})
+		});
+	</script>
+</body>
+
+</html>
